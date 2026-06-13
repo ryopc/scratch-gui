@@ -1,7 +1,7 @@
 name: Publish to GitHub Pages
 
 on:
-  workflow_dispatch: # これを入れることで手動の「Run workflow」ボタンが出現します
+  workflow_dispatch: # 手動で動かすための「Run workflow」ボタンを出します
 
 permissions:
   contents: read
@@ -22,21 +22,23 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 16 # TurboWarp(scratch-gui)が安定してビルドできるバージョンに指定
+          node-version: 18 # scratch-guiが安定して動くバージョン
           cache: 'npm'
 
       - name: Install Dependencies
-        run: npm ci # エラーを起こしにくいクリーンインストールを実行
+        run: npm ci
 
       - name: Build Web Version
-        run: npm run build # TurboWarpをWebサイト用に出力
+        # ★ここで、先ほどのmicro:bitの暗号化エラーを強制的に回避させます
+        run: npm run build
         env:
           NODE_ENV: production
+          NODE_OPTIONS: --openssl-legacy-provider
 
       - name: Upload Website Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './build' # 出来上がった成果物の場所を指定
+          path: './build'
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
